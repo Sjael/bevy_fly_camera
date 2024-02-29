@@ -50,7 +50,10 @@
 //!
 //! There's also a basic piece of example code included in `/examples/2d.rs`
 
-use bevy::{input::mouse::MouseMotion, prelude::*};
+use bevy::{
+	input::mouse::MouseMotion,
+	prelude::*,
+};
 use cam2d::camera_2d_movement_system;
 use util::movement_axis;
 
@@ -69,7 +72,8 @@ pub use cam2d::FlyCamera2d;
 ///     .with(FlyCamera::default());
 /// }
 
-#[derive(Component)]
+#[derive(Component, Reflect)]
+#[reflect(Component)]
 pub struct FlyCamera {
 	/// The speed the FlyCamera accelerates at. Defaults to `1.0`
 	pub accel: f32,
@@ -110,12 +114,12 @@ impl Default for FlyCamera {
 			pitch: 0.0,
 			yaw: 0.0,
 			velocity: Vec3::ZERO,
-			key_forward: KeyCode::W,
-			key_backward: KeyCode::S,
-			key_left: KeyCode::A,
-			key_right: KeyCode::D,
+			key_forward: KeyCode::KeyW,
+			key_backward: KeyCode::KeyS,
+			key_left: KeyCode::KeyA,
+			key_right: KeyCode::KeyD,
 			key_up: KeyCode::Space,
-			key_down: KeyCode::LShift,
+			key_down: KeyCode::ShiftLeft,
 			enabled: true,
 		}
 	}
@@ -140,7 +144,7 @@ fn strafe_vector(rotation: &Quat) -> Vec3 {
 
 pub fn camera_movement_system(
 	time: Res<Time>,
-	keyboard_input: Res<Input<KeyCode>>,
+	keyboard_input: Res<ButtonInput<KeyCode>>,
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
 	for (mut options, mut transform) in query.iter_mut() {
@@ -201,7 +205,7 @@ pub fn mouse_motion_system(
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
 	let mut delta: Vec2 = Vec2::ZERO;
-	for event in mouse_motion_event_reader.iter() {
+	for event in mouse_motion_event_reader.read() {
 		delta += event.delta;
 	}
 	if delta.is_nan() {
@@ -241,9 +245,13 @@ pub struct FlyCameraPlugin;
 
 impl Plugin for FlyCameraPlugin {
 	fn build(&self, app: &mut App) {
-		app
-			.add_system(camera_movement_system)
-			.add_system(camera_2d_movement_system)
-			.add_system(mouse_motion_system);
+		app.add_systems(
+			Update,
+			(
+				camera_2d_movement_system,
+				camera_movement_system,
+				mouse_motion_system,
+			),
+		);
 	}
 }
