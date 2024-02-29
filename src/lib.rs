@@ -138,7 +138,7 @@ fn strafe_vector(rotation: &Quat) -> Vec3 {
 		.normalize()
 }
 
-fn camera_movement_system(
+pub fn camera_movement_system(
 	time: Res<Time>,
 	keyboard_input: Res<Input<KeyCode>>,
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
@@ -195,7 +195,7 @@ fn camera_movement_system(
 	}
 }
 
-fn mouse_motion_system(
+pub fn mouse_motion_system(
 	time: Res<Time>,
 	mut mouse_motion_event_reader: EventReader<MouseMotion>,
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
