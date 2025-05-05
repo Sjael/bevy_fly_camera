@@ -9,29 +9,30 @@ fn init(
 	asset_server: Res<AssetServer>,
 ) {
 	commands
-		.spawn(Camera2dBundle::default())
-		.insert(FlyCamera2d::default());
+		.spawn(Camera2d::default())
+		.insert((
+			FlyCamera2d::default(),
+			Msaa::Sample4,
+		));
 
 	const AMOUNT: i32 = 6;
 	const SPACING: f32 = 300.0;
 	for x in -(AMOUNT / 2)..(AMOUNT / 2) {
 		for y in -(AMOUNT / 2)..(AMOUNT / 2) {
-			commands.spawn(SpriteBundle {
-				texture: asset_server.load("icon.png"),
-				transform: Transform::from_xyz(
+			commands.spawn((
+				Sprite::from_image(asset_server.load("icon.png")),
+				Transform::from_xyz(
 					x as f32 * SPACING,
 					y as f32 * SPACING,
 					0.0,
 				),
-				..Default::default()
-			});
+			));
 		}
 	}
 }
 
 fn main() {
 	App::new()
-		.insert_resource(Msaa::Sample4)
 		.add_plugins(DefaultPlugins)
 		.add_systems(Startup, init)
 		.add_plugins(FlyCameraPlugin)
